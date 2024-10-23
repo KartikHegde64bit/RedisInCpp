@@ -75,7 +75,9 @@ int main(int argc, char **argv) {
 			}
 
 			// initially assume client sends only pre defined ping message
-			send(client_fd, "+PONG\r\n", 7, 0);
+			if(strncmp(buffer, "*1\r\n$4\r\nPING\r\n", 14) == 0) {
+				send(client_fd, "+PONG\r\n", 7, 0);
+			}
 		}
 	}
 	
