@@ -1,0 +1,14 @@
+KB_1.1
+1. Server Socket: A server socket is a network endpoint that listens for incoming connections from clients. It's essentially a "doorway" on a server 
+that allows other computers (clients) to connect and communicate with it.
+
+More info @: https://g.co/gemini/share/9fdc964077bb
+
+KB_1.2
+1. AF_INET is an address family that is used to designate the type of addresses that your socket can communicate with (in this case, Internet Protocol v4 
+addresses).
+
+KB_1.3
+The setsockopt() function allows setting options on the socket. Here, SO_REUSEADDR is being set, which allows the socket to be quickly reused 
+after the program restarts. This prevents "Address already in use" errors that can occur if the socket remains in the TIME_WAIT state after the 
+program closes.
