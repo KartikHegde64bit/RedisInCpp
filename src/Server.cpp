@@ -46,27 +46,37 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	// max length of pending connections
-	int connection_backlog = 5;
-	// generally success returns 0;
-	if (listen(server_fd, connection_backlog) != 0) {
-		std::cerr << "listen failed\n";
-		return 1;
+	while(true) {
+		// max length of pending connections
+		int connection_backlog = 5;
+		if (listen(server_fd, connection_backlog) != 0) {
+			std::cerr << "listen failed\n";
+			return 1;
+		}
+		
+		struct sockaddr_in client_addr;
+		int client_addr_len = sizeof(client_addr);
+		
+		std::cout << "Waiting for a client to connect...\n";
+		
+		int client_fd = accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
+		if(client_fd >=0 ) {
+			std::cout << "Client connected\n";
+		}
+		// for client command
+		char buffer[1024];
+		// single connection multiple request handling
+		while(true){
+			// use recv to receive the command from client
+			ssize_t bytes_read = recv(client_fd, buffer, sizeof(buffer), 0);
+			if(bytes_read <= 0) {
+				// lost connection
+				break;
+			}
+
+			// initially assume client sends only pre defined ping message
+			send(client_fd, "+PONG\r\n", 7, 0);
+		}
 	}
-
-	// for client address
-	struct sockaddr_in client_addr;
-	int client_addr_len = sizeof(client_addr);
-	
-	std::cout << "Waiting for a client to connect...\n";
-
-	int client_fd = accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
-	if(client_fd >=0 ) {
-		std::cout << "Client connected\n";
-	}
-	// sends the response to the client
-	send(client_fd, "+PONG\r\n", strlen("+PONG\r\n"), 0);
-
-	close(server_fd);
 	
 }
