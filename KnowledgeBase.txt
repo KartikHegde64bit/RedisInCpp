@@ -5,10 +5,16 @@ that allows other computers (clients) to connect and communicate with it.
 More info @: https://g.co/gemini/share/9fdc964077bb
 
 KB_1.2
-1. AF_INET is an address family that is used to designate the type of addresses that your socket can communicate with (in this case, Internet Protocol v4 
-addresses).
+1. AF_INET is an address family that is used to designate the type of addresses that your socket can communicate with (in this case, 
+Internet Protocol v4 addresses).
 
 KB_1.3
 The setsockopt() function allows setting options on the socket. Here, SO_REUSEADDR is being set, which allows the socket to be quickly reused 
 after the program restarts. This prevents "Address already in use" errors that can occur if the socket remains in the TIME_WAIT state after the 
 program closes.
+
+KB_1.4
+sockaddr_in is a structure used to define the server's address.
+sin_family = AF_INET specifies that the socket will use IPv4.
+sin_addr.s_addr = INADDR_ANY allows the server to bind to any available network interface.
+sin_port = htons(6379) sets the port number to 6379. The htons() function ensures that the port number is in the correct network byte order (big-endian).
