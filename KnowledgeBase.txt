@@ -1,3 +1,9 @@
+KB_1.0
+1. unitbuf -> by default c++ buffers the output stream for performance. unitbuf disables buffering
+and flushes the ouptput after each insertion operation.
+Note: Every time you use <<, you perform an insertion operation.
+
+
 KB_1.1
 1. Server Socket: A server socket is a network endpoint that listens for incoming connections from clients. It's essentially a "doorway" on a server 
 that allows other computers (clients) to connect and communicate with it.
