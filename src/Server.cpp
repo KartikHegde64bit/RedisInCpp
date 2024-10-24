@@ -74,26 +74,15 @@ int main(int argc, char **argv) {
 		int client_addr_len = sizeof(client_addr);
 		
 		std::cout << "Waiting for a client to connect...\n";
-		
-		int client_fd = accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
-		if(client_fd >=0 ) {
-			std::cout << "Client connected\n";
-		}
-		// for client command
-		char buffer[1024];
-		// single connection multiple request handling
-		while(true){
-			// use recv to receive the command from client
-			ssize_t bytes_read = recv(client_fd, buffer, sizeof(buffer), 0);
-			if(bytes_read <= 0) {
-				// lost connection
-				break;
-			}
 
-			// initially assume client sends only pre defined ping message
-			if(strncmp(buffer, "*1\r\n$4\r\nPING\r\n", 14) == 0) {
-				send(client_fd, "+PONG\r\n", 7, 0);
+		while(true){
+			// accept new client request
+			int client_fd = accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
+			if(client_fd >= 0 ) {
+				std::cout << "Client connected\n";
 			}
+			std::thread nw(connection_handler, client_fd);
+			nw.detach();
 		}
 	}
 	
