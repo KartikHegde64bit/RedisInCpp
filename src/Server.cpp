@@ -7,7 +7,23 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <thread>
 
+/**
+ * @param client_fd -> client file descriptor
+ */
+void connection_handler(int client_fd){
+	std:string msg = "+PONG\r\n";
+	while(true) {
+		char buf[1024];
+		int rec = recv(client_fd, &buf, sizeof(buf), 0);
+		if(rec <= 0) {
+			close(client_fd);
+			break;
+		}
+		write(client_fd, msg.c_str(), msg.size());
+	}
+}
 
 // argc -> argument count
 // argv -> argument vector ( command line arguments )
