@@ -14,13 +14,18 @@
  */
 void connection_handler(int client_fd){
 	std:string msg = "+PONG\r\n";
+	// continuously listen for incoming requests by this client.
 	while(true) {
+		// assuming client data fits within this buffer
 		char buf[1024];
+		// 0 -> indicates no special flags are used to read this data
+		// rec -> no of bytes received 0 or less indicates closed connection.
 		int rec = recv(client_fd, &buf, sizeof(buf), 0);
 		if(rec <= 0) {
 			close(client_fd);
 			break;
 		}
+		//c_str -> C style string i.e, null terminated string
 		write(client_fd, msg.c_str(), msg.size());
 	}
 }
