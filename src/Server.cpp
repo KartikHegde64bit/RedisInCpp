@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	std::cout << "Logs from your program will appear here!\n";
 
-	// KB_1.1 
+	// KB_1.1, KB_1.2
 	// this line creates a TCP(SOCK_STREAM) socket using IPv4(AF_INET)
 	int server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_fd < 0) {
