@@ -26,7 +26,8 @@ void connection_handler(int client_fd){
 			break;
 		}
 		//c_str -> C style string i.e, null terminated string
-		write(client_fd, msg.c_str(), msg.size());
+		//write(client_fd, msg.c_str(), msg.size());
+		write(client_fd, buf.c_str(), sizeof(buf));
 	}
 }
 
