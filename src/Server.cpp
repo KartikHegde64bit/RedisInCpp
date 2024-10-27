@@ -4,18 +4,18 @@
 #include <cstring>
 #include <unistd.h>
 #include <sys/types.h>
-// #include <sys/socket.h>
-// #include <arpa/inet.h>
-// #include <netdb.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+// #include <winsock2.h>
+// #include <ws2tcpip.h>
 #include <thread>
 
 /**
  * @param client_fd -> client file descriptor
  */
 void connection_handler(int client_fd){
-	std:string msg = "+PONG\r\n";
+	std::string msg = "+PONG\r\n";
 	// continuously listen for incoming requests by this client.
 	while(true) {
 		// assuming client data fits within this buffer
