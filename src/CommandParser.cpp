@@ -1,5 +1,8 @@
-#include "CommandParser.hpp"
+#include <CommandParser.hpp>
 #include <iostream>
+#include <vector>
+#include <string>
+#include <format>
 
 CommandParser::CommandParser() {
     // Constructor implementation
@@ -15,10 +18,13 @@ CommandParser::~CommandParser() {
 
 /**
  * @param buf
+ * @returns command_arr
  */
-std::string CommandParser::handleCommand(char[] buf) {
+std::vector<std::string> CommandParser::parse_redis_request_command(const std::string& buf) {
 	// create string of received char array buffer
 	std::string rec_msg(buf);
+
+    std::vector<std::string> command_arr;
 
 	// case of array i.e command
 	if(rec_msg[0] == '*') {
@@ -31,5 +37,32 @@ std::string CommandParser::handleCommand(char[] buf) {
         // since the fist argument after asterik is going to be the length of command array
         std::string comm_arr_len_strng = rec_msg.substr(1, msg_ind);
         int command_arr_len = std::stoi(comm_arr_len_strng);
+
+        // vector to store the command words
+        command_arr.reserve(command_arr_len);
+
+        bool isLenStrng = false;
+        int prev = msg_ind;
+
+        while(msg_ind < rec_msg.size()) {
+            if(rec_msg.substr(msg_ind, 2) == "\r\n") {
+                // reached the end of a word in command, so append to array
+                if(!isLenStrng) {
+                    std::string current_word = rec_msg.substr(prev, msg_ind - prev);
+                    if(current_word != "") {
+                        command_arr.push_back(rec_msg.substr(prev, msg_ind - prev));
+                    }
+                }
+                isLenStrng = !isLenStrng;
+                msg_ind += 1;
+                prev  = msg_ind + 1;
+            }
+            msg_ind++;
+        }
 	}
+    return command_arr;
+}
+
+std::string CommandParser::generate_redis_response(const std::string &res_msg){
+    return std::format("${}\r\n{}\r\n", res_msg.size(), res_msg);
 }
