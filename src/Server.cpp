@@ -14,11 +14,11 @@
 /**
  * @param client_fd -> client file descriptor
  */
-void connection_handler(int client_fd){
-	std::string msg = "+PONG\r\n";
-	// continuously listen for incoming requests by this client.
+// this will be called for every new client connection
+void handle_client_connection(int client_fd) {
+	std::string pong_msg = "+PONG\r\n";
+	// continuously listen for incoming requests by this client
 	while(true) {
-		// assuming client data fits within this buffer
 		char buf[1024];
 		// 0 -> indicates no special flags are used to read this data
 		// rec -> no of bytes received 0 or less indicates closed connection.
@@ -27,9 +27,23 @@ void connection_handler(int client_fd){
 			close(client_fd);
 			break;
 		}
-		//c_str -> C style string i.e, null terminated string
-		//write(client_fd, msg.c_str(), msg.size());
-		write(client_fd, buf.c_str(), sizeof(buf));
+		CommandParser* commandParser = new CommandParser();
+		std::vector<std::string> command_arr = commandParser->parse_redis_request_command(buf);
+
+		// PING command
+		if(command_arr[0] == "PING") {
+			std::cout<< "pong" << std::endl;
+			//c_str -> C style string i.e, null terminated string
+			write(client_fd, pong_msg.c_str(), pong_msg.size());
+		// ECHO command
+		} 
+		else if(command_arr[0] == "ECHO") {
+			std::cout<< "echo" << std::endl;
+			std::string echo_resp_msg = commandParser->generate_redis_response(command_arr[1]);
+			std::cout<<"echo msg"<<echo_resp_msg<<std::endl;
+			write(client_fd, echo_resp_msg.c_str(), echo_resp_msg.size());
+		}
+		
 	}
 }
 
