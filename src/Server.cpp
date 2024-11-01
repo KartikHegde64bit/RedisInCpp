@@ -10,12 +10,17 @@
 // #include <winsock2.h>
 // #include <ws2tcpip.h>
 #include <thread>
+#include <unordered_map>
+
+// custom header files
+#include <CommandParser.hpp>
+#include <KeyValueDataStructure.hpp>
 
 /**
  * @param client_fd -> client file descriptor
  */
 // this will be called for every new client connection
-void handle_client_connection(int client_fd) {
+void handle_client_connection(int client_fd, KeyValueDataStructure* keyValueDataStructure) {
 	std::string pong_msg = "+PONG\r\n";
 	// continuously listen for incoming requests by this client
 	while(true) {
@@ -42,6 +47,28 @@ void handle_client_connection(int client_fd) {
 			std::string echo_resp_msg = commandParser->generate_redis_response(command_arr[1]);
 			std::cout<<"echo msg"<<echo_resp_msg<<std::endl;
 			write(client_fd, echo_resp_msg.c_str(), echo_resp_msg.size());
+		}
+		else if(command_arr[0] == "SET") {
+			std::string key = command_arr[1];
+			std::string value = command_arr[2];
+			std::cout<< "SET command" << std::endl;
+			std::string setResponse = keyValueDataStructure->setKeyValue(client_fd, key, value);
+			if(setResponse == "SUCCESS") {
+				setResponse = "+OK\r\n";
+				write(client_fd, setResponse.c_str(), setResponse.size());
+			}
+			
+
+		} else if(command_arr[0] == "GET") {
+			std::string getResponse = "";
+			std::string key = command_arr[1];
+			std::string value = keyValueDataStructure->getKeyValue(client_fd, key);
+			if(value == "") {
+				getResponse = "$-1\r\n";
+			} else {
+				getResponse = commandParser->generate_echo_response(value);
+			}
+			write(client_fd, getResponse.c_str(), getResponse.size());
 		}
 		
 	}
@@ -86,7 +113,6 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	while(true) {
 		// max length of pending connections
 		int connection_backlog = 5;
 		if (listen(server_fd, connection_backlog) != 0) {
@@ -105,9 +131,11 @@ int main(int argc, char **argv) {
 			if(client_fd >= 0 ) {
 				std::cout << "Client connected\n";
 			}
-			std::thread nw(connection_handler, client_fd);
-			nw.detach();
-		}
+		KeyValueDataStructure* keyValueDataStructure = new KeyValueDataStructure();
+		std::thread nw(handle_client_connection, client_fd, keyValueDataStructure);
+		nw.detach();
 	}
-	
+	close(server_fd);
+
+	return 0;
 }
