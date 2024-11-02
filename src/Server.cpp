@@ -51,8 +51,17 @@ void handle_client_connection(int client_fd, KeyValueDataStructure* keyValueData
 		else if(command_arr[0] == "SET") {
 			std::string key = command_arr[1];
 			std::string value = command_arr[2];
+			std::string exp_command = "";
+			std::string exp_time = "";
 			std::cout<< "SET command" << std::endl;
-			std::string setResponse = keyValueDataStructure->setKeyValue(client_fd, key, value);
+
+			// case of expiry time
+			if(command_arr.size() >= 5) {
+				exp_command = command_arr[3];
+				exp_time = command_arr[4];
+			}
+			
+			std::string setResponse = keyValueDataStructure->setKeyValue(client_fd, key, value, exp_command, exp_time);
 			if(setResponse == "SUCCESS") {
 				setResponse = "+OK\r\n";
 				write(client_fd, setResponse.c_str(), setResponse.size());
