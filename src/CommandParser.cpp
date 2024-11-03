@@ -1,8 +1,11 @@
-#include <CommandParser.hpp>
 #include <iostream>
 #include <vector>
 #include <string>
 #include <format>
+
+
+#include <CommandParser.hpp>
+#include <CommandLineArgs.hpp>
 
 CommandParser::CommandParser() {
     // Constructor implementation
@@ -65,4 +68,21 @@ std::vector<std::string> CommandParser::parse_redis_request_command(const std::s
 
 std::string CommandParser::generate_redis_response(const std::string &res_msg){
     return std::format("${}\r\n{}\r\n", res_msg.size(), res_msg);
+}
+
+std::string CommandParser::generate_config_response(std::string argument, CommandLineArgs* commandLineArgs) {
+    std::string response = "*2\r\n";
+    std::string dir = commandLineArgs->getDir();
+    int dir_size = dir.size();
+    std::string dbfilename = commandLineArgs->getDbFilename();
+    int dbfilename_size = dbfilename.size();
+    response += "$" + std::to_string(argument.size()) + "\r\n" + argument + "\r\n";
+    if(argument == "dir") {
+        response += "$" + std::to_string(dir_size) + "\r\n" + commandLineArgs->getDir() + "\r\n";
+    } else if(argument == "dbfilename") {
+        response += "$" + std::to_string(dbfilename_size) + "\r\n" + commandLineArgs->getDbFilename() + "\r\n";
+    }
+    std::cout << "config response: " << response << std::endl;
+    return response;
+
 }

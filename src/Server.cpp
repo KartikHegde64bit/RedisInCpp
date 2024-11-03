@@ -15,12 +15,13 @@
 // custom header files
 #include <CommandParser.hpp>
 #include <KeyValueDataStructure.hpp>
+#include <CommandLineArgs.hpp>
 
 /**
  * @param client_fd -> client file descriptor
  */
 // this will be called for every new client connection
-void handle_client_connection(int client_fd, KeyValueDataStructure* keyValueDataStructure) {
+void handle_client_connection(int client_fd, KeyValueDataStructure* keyValueDataStructure, CommandLineArgs* commandLineArgs) {
 	std::string pong_msg = "+PONG\r\n";
 	// continuously listen for incoming requests by this client
 	while(true) {
@@ -78,6 +79,9 @@ void handle_client_connection(int client_fd, KeyValueDataStructure* keyValueData
 				getResponse = commandParser->generate_echo_response(value);
 			}
 			write(client_fd, getResponse.c_str(), getResponse.size());
+		} else if(command_arr[0] == "CONFIG") {
+			std::string configResponse = commandParser->generate_config_response(command_arr[2], commandLineArgs);
+			write(client_fd, configResponse.c_str(), configResponse.size());
 		}
 		
 	}
@@ -134,6 +138,19 @@ int main(int argc, char **argv) {
 		
 		std::cout << "Waiting for a client to connect...\n";
 
+	CommandLineArgs* commandLineArgs = new CommandLineArgs();
+	// set the arguments from command line
+	// Loop through command-line arguments
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--dir" && i + 1 < argc) {
+            commandLineArgs->setDir(argv[i + 1]);
+            ++i;  // Move to the next argument
+        } else if (arg == "--dbfilename" && i + 1 < argc) {
+            commandLineArgs->setDbFilename(argv[i + 1]);
+            ++i;  // Move to the next argument
+        }
+    }
 		while(true){
 			// accept new client request
 			int client_fd = accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
@@ -141,7 +158,7 @@ int main(int argc, char **argv) {
 				std::cout << "Client connected\n";
 			}
 		KeyValueDataStructure* keyValueDataStructure = new KeyValueDataStructure();
-		std::thread nw(handle_client_connection, client_fd, keyValueDataStructure);
+		std::thread nw(handle_client_connection, client_fd, keyValueDataStructure, commandLineArgs);
 		nw.detach();
 	}
 	close(server_fd);
