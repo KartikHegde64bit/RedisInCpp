@@ -13,11 +13,11 @@ class RdbFileReader{
 
     private:
         std::string magicString;
-        std::unordered_map<std::string, std::string>> metaDataMap;
+        std::unordered_map<std::string, std::string> metaDataMap;
         int keyValueTableSize;
         int keyExpireTableSize;
 
         // the below data structure covers both key - value store and key-expiry store
-        KeyValueDataStructure::KeyValueDataStructure keyValueDataStructure;
+        KeyValueDataStructure keyValueDataStructure;
 
 };
