@@ -10,6 +10,7 @@ class RdbFileReader{
         ~RdbFileReader();
         
         std::string generateRdbFileStream();
+        std::string parseAndSetHeadersection();
 
     private:
         std::string magicString;
